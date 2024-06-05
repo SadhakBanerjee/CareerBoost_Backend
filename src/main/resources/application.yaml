@@ -1,0 +1,5 @@
+openapi: 3.0.1
+info:
+  title: Career Boost API
+  description: API documentation for the Career Boost application
+  version: 1.0.0
