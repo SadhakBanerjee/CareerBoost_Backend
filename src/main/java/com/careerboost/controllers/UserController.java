@@ -146,7 +146,7 @@ public class UserController {
         }
         UserDto createdUser = userService.createUser(user);
         logger.info("User registered successfully with email: {}", createdUser.getEmailId());
-        return createdUser;
+        return createdUser; 
     }
 
     @PostMapping("/login")
