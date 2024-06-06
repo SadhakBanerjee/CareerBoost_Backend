@@ -40,9 +40,6 @@ public class User implements UserDetails {
 	@Column(name="last_name")
 	private String lastName;
 
-	
-
-	
 
 	public Long getUserId() {
 		return userId;

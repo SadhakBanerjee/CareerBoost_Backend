@@ -29,11 +29,20 @@ public class UserServiceImpl implements UserService{
 		return userRepository.findAll();
 	}
 
+//	@Override
+//	public UserDto createUser(User user) {
+//		user.setPassword(passwordEncoder.encode(user.getPassword()));
+//		User userData = userRepository.save(user);
+//		return this.modelMapper.map(userData, UserDto.class);
+//	}
+	
 	@Override
 	public UserDto createUser(User user) {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		User userData = userRepository.save(user);
-		return this.modelMapper.map(userData, UserDto.class);
+		UserDto userDto = this.modelMapper.map(userData, UserDto.class);
+		userDto.setUserName(userData.getUserName());
+		return userDto;
 	}
 	
 }

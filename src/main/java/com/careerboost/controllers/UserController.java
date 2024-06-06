@@ -137,17 +137,38 @@ public class UserController {
 
     private Logger logger = LoggerFactory.getLogger(UserController.class);
 
+//    @PostMapping("/register")
+//    public UserDto register(@RequestBody User user) {
+//        logger.info("Received request to register user with email: {}", user.getEmailId());
+//        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+//            logger.error("Registration failed: Password cannot be null or empty for user with email: {}", user.getEmailId());
+//            throw new IllegalArgumentException("Password cannot be null or empty");
+//        }
+//        UserDto createdUser = userService.createUser(user);
+//        logger.info("User registered successfully with email: {}", createdUser.getEmailId());
+//        return createdUser; 
+//    }
+    
     @PostMapping("/register")
-    public UserDto register(@RequestBody User user) {
+    public ResponseEntity<UserDto> register(@RequestBody User user) {
         logger.info("Received request to register user with email: {}", user.getEmailId());
         if (user.getPassword() == null || user.getPassword().isEmpty()) {
             logger.error("Registration failed: Password cannot be null or empty for user with email: {}", user.getEmailId());
-            throw new IllegalArgumentException("Password cannot be null or empty");
+            UserDto response = new UserDto(null, user.getEmailId(), "Registration failed: Password cannot be null or empty", null);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
-        UserDto createdUser = userService.createUser(user);
-        logger.info("User registered successfully with email: {}", createdUser.getEmailId());
-        return createdUser; 
+        try {
+            UserDto createdUser = userService.createUser(user);
+            createdUser.setMessage("User registered successfully");
+            logger.info("User registered successfully with email: {}", createdUser.getEmailId());
+            return new ResponseEntity<>(createdUser, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Registration failed: {}", e.getMessage());
+            UserDto response = new UserDto(null, user.getEmailId(), "Registration failed: " + e.getMessage(), null);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody User request) {
@@ -167,13 +188,13 @@ public class UserController {
 
         JwtResponse response = JwtResponse.builder()
                 .jwtToken(token)
-                .username(userDetails.getUsername())
+                .username(((User) userDetails).getUserName())
                 .message("Login successful")
                 .build();
         logger.info("Login successful for email: {}", request.getEmailId());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
+    
     private void doAuthenticate(String email, String password) {
         logger.debug("Authenticating user with email: {}", email);
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, password);
